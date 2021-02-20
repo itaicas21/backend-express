@@ -1,9 +1,12 @@
 const express = require("express");
 const {v4 : uuidv4} = require("uuid");
 const app = express();
-app.use(express.json());
 const fs = require('fs');
 const path = require("path");
+app.use('/b', (req, res, next) => {
+    setTimeout(next, 1000);
+});
+app.use(express.json());
 const tasks=[]
 app.get('/b', (req, res) => {
     const allFileNames = fs.readdirSync(`../backend-express`);
@@ -22,12 +25,15 @@ app.get(`/b/:id`, (req, res) => {
         const binContent = fs.readFileSync(`./b/${id}`);
     res.send(binContent);
     }
-        res.status(422).send({ message: "Invalid Record ID" });
+        res.status(404).send({ message: "File not found" });
 })
-
+// no body/ invalid body not implemented yet
 app.post(`/b`, (req, res) => {
     let uniqueId = uuidv4();
     req.body.id = uniqueId;
+    if (!(req.headers['content-type'] === 'application/json')) {
+        res.status(400).send("Bad request- content type not set to app/json");
+    } 
     //if uuid library is implemented crooked
     while (fs.existsSync(`${uniqueId}.json`)) {
         uniqueId = uuidv4();
@@ -39,6 +45,10 @@ app.post(`/b`, (req, res) => {
 
 app.put(`/b/:id`, (req, res) => {
     const { id } = req.params;
+    if (!(req.headers['content-type'] === 'application/json')) {
+        res.status(400).send("Bad request- content type not set to app/json");
+    } 
+
     if (fs.existsSync(`./${id}.json`)) {
         const data = fs.readFileSync(`./${id}.json`);
         const json = JSON.parse(data);
@@ -59,3 +69,8 @@ app.delete(`/b/:id`, (req, res) => {
     res.status(404).send("File does not exist")
 })
 app.listen(3000);
+
+if (!(request.headers['content-type'] === 'application/json')) {
+    res.status(404).send("File does not exist")
+}
+ 
