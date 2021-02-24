@@ -16,22 +16,22 @@ app.get('/b', (req, res) => {
             idFiles.push(JSON.parse(fs.readFileSync(`./${file}`)));
         }
     })
-    res.send(idFiles);
+    return res.send(idFiles);
 });
 
 app.get(`/b/:id`, (req, res) => {
     const { id } = req.params;
     if (fs.existsSync(`./b/${id}`)) {
         const binContent = fs.readFileSync(`./b/${id}`);
-    res.send(binContent);
+        return res.send(binContent);
     }
-        res.status(404).send({ message: "File not found" });
+        return res.status(404).send({ message: "File not found" });
 })
 // no body/ invalid body not implemented yet
 app.post(`/b`, (req, res) => {
     if (!(req.headers['content-type'] === 'application/json')) {
-        res.status(400).send("Bad request- content type not set to app/json");
-    } else{
+        return res.status(400).send("Bad request- content type not set to app/json");
+    } 
         let uniqueId = uuidv4();
         req.body.id = uniqueId;
         //if uuid library is implemented crooked
@@ -40,17 +40,16 @@ app.post(`/b`, (req, res) => {
             req.body.id = uniqueId;
         }
         fs.writeFileSync(`${uniqueId}.json`, JSON.stringify(req.body), () => { });
-        res.send(fs.readFileSync(`./${uniqueId}.json`));
-    }
+        return res.send(fs.readFileSync(`./${uniqueId}.json`));
+    
    
 })
 
 app.put(`/b/:id`, (req, res) => {
     const { id } = req.params;
     if (!(req.headers['content-type'] === 'application/json')) {
-        res.status(400).send("Bad request- content type not set to app/json");
-    } else
-
+        return res.status(400).send("Bad request- content type not set to app/json");
+    } 
     if (fs.existsSync(`./${id}.json`)) {
         const data = fs.readFileSync(`./${id}.json`);
         const json = JSON.parse(data);
@@ -58,9 +57,9 @@ app.put(`/b/:id`, (req, res) => {
             json[prop] = req.body[prop];
         }
         fs.writeFileSync(`./${id}.json`, JSON.stringify(json));
-        res.send(fs.readFileSync(`./${id}.json`));
-    } else
-    res.status(404).send("File does not exist")
+        return res.send(fs.readFileSync(`./${id}.json`));
+    } 
+    return res.status(404).send("File does not exist")
 })
 app.delete(`/b/:id`, (req, res) => {
     const { id } = req.params;
@@ -68,7 +67,7 @@ app.delete(`/b/:id`, (req, res) => {
         fs.unlinkSync(`./${id}.json`);
         res.send("deleted");  
     }
-    res.status(404).send("File does not exist")
+    return res.status(404).send("File does not exist")
 })
 app.listen(3000);
 
