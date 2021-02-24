@@ -31,23 +31,25 @@ app.get(`/b/:id`, (req, res) => {
 app.post(`/b`, (req, res) => {
     if (!(req.headers['content-type'] === 'application/json')) {
         res.status(400).send("Bad request- content type not set to app/json");
-    } 
-    let uniqueId = uuidv4();
-    req.body.id = uniqueId;
-    //if uuid library is implemented crooked
-    while (fs.existsSync(`${uniqueId}.json`)) {
-        uniqueId = uuidv4();
+    } else{
+        let uniqueId = uuidv4();
         req.body.id = uniqueId;
+        //if uuid library is implemented crooked
+        while (fs.existsSync(`${uniqueId}.json`)) {
+            uniqueId = uuidv4();
+            req.body.id = uniqueId;
+        }
+        fs.writeFileSync(`${uniqueId}.json`, JSON.stringify(req.body), () => { });
+        res.send(fs.readFileSync(`./${uniqueId}.json`));
     }
-    fs.writeFileSync(`${uniqueId}.json`, JSON.stringify(req.body), () => { });
-    res.send(fs.readFileSync(`./${uniqueId}.json`));
+   
 })
 
 app.put(`/b/:id`, (req, res) => {
     const { id } = req.params;
     if (!(req.headers['content-type'] === 'application/json')) {
         res.status(400).send("Bad request- content type not set to app/json");
-    } 
+    } else
 
     if (fs.existsSync(`./${id}.json`)) {
         const data = fs.readFileSync(`./${id}.json`);
@@ -57,7 +59,7 @@ app.put(`/b/:id`, (req, res) => {
         }
         fs.writeFileSync(`./${id}.json`, JSON.stringify(json));
         res.send(fs.readFileSync(`./${id}.json`));
-    }
+    } else
     res.status(404).send("File does not exist")
 })
 app.delete(`/b/:id`, (req, res) => {
