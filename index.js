@@ -70,7 +70,5 @@ app.delete(`/b/:id`, (req, res) => {
 })
 app.listen(3000);
 
-if (!(request.headers['content-type'] === 'application/json')) {
-    res.status(404).send("File does not exist")
-}
+
  
