@@ -82,7 +82,7 @@ app.put(`/b/:id`, (req, res) => {
       json[prop] = req.body[prop];
     }
     fs.writeFileSync(`${dir}/${id}.json`, JSON.stringify(json));
-    return res.send(fs.readFileSync(`${dir}/${id}.json`));
+    return res.json(JSON.parse(fs.readFileSync(`${dir}/${id}.json`)));
   }
   return res.status(404).send("File does not exist");
 });
